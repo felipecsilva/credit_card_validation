@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Credit Card Validator</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+        }
+        input[type="text"] {
+            width: calc(100% - 22px);
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        #result {
+            margin-top: 20px;
+            font-size: 1.2em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Credit Card Brand Identifier</h1>
+        <p>Please enter your credit card number:</p>
+        <input type="text" id="cardNumber" placeholder="Enter credit card number" />
+        <button id="validateButton">Identify Brand</button>
+        <div id="result"></div>
+    </div>
+    <script src="js/script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const cardInput = document.getElementById('cardNumber');
+            const validateButton = document.getElementById('validateButton');
+            const result = document.getElementById('result');
+
+            const cardPatterns = {
+                visa: /^4[0-9]{12}(?:[0-9]{3})?$/,
+                mastercard: /^5[1-5][0-9]{14}$/,
+                amex: /^3[47][0-9]{13}$/,
+                discover: /^6(?:011|5[0-9]{2})[0-9]{12}$/,
+                elo: /^((4011|431274|438935|451416|457393|4576|457631|457632|504175|627780|636297|636368|636369|(6503[1-3])|(6500(3[5-9]|4[0-9]|5[0-1]))|(6504(0[5-9]|1[0-9]|2[0-9]|3[0-9]))|(650(48[5-9]|49[0-9]|50[0-9]|51[1-9]|52[0-9]|53[0-7]))|(6505(4[0-9]|5[0-9]|6[0-9]|7[0-9]|8[0-9]|9[0-8]))|(6507(0[0-9]|1[0-8]))|(6507(2[0-7]))|(650900)))/,
+                hipercard: /^(606282\d{10}(\d{3})?)|(3841\d{15})$/
+            };
+
+            // Formata o número do cartão em grupos de 4
+            cardInput.addEventListener('input', (e) => {
+                let value = e.target.value.replace(/\D/g, '');
+                if (value.length > 16) value = value.slice(0, 16);
+                
+                // Adiciona espaços a cada 4 dígitos
+                value = value.replace(/(\d{4})(?=\d)/g, '$1 ');
+                e.target.value = value;
+            });
+
+            // Função para identificar a bandeira do cartão
+            const identifyCardBrand = (number) => {
+                const cleanNumber = number.replace(/\D/g, '');
+                
+                for (const [brand, pattern] of Object.entries(cardPatterns)) {
+                    if (pattern.test(cleanNumber)) {
+                        return brand.charAt(0).toUpperCase() + brand.slice(1);
+                    }
+                }
+                return 'Unknown';
+            };
+
+            // Validação quando o botão é clicado
+            validateButton.addEventListener('click', () => {
+                const cardNumber = cardInput.value.replace(/\D/g, '');
+                
+                if (cardNumber.length < 13 || cardNumber.length > 16) {
+                    result.className = 'invalid';
+                    result.textContent = 'Invalid card number length';
+                    return;
+                }
+
+                const brand = identifyCardBrand(cardNumber);
+                if (brand === 'Unknown') {
+                    result.className = 'invalid';
+                    result.textContent = 'Invalid card number';
+                } else {
+                    result.className = 'valid';
+                    result.textContent = `Card Brand: ${brand}`;
+                }
+            });
+        });
+    </script>
+</body>
+</html>
